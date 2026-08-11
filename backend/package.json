@@ -13,19 +13,6 @@
   "license": "MIT",
   "type": "commonjs",
   "dependencies": {
-    "bcrypt": "^6.0.0",
-    "cors": "^2.8.6",
-    "dotenv": "^17.4.2",
-    "drizzle-orm": "^0.45.2",
-    "express": "^5.2.1",
-    "express-async-handler": "^1.2.0",
-    "helmet": "^8.3.0",
-    "jsonwebtoken": "^9.0.3",
-    "morgan": "^1.11.0",
-    "pg": "^8.23.0",
-    "zod": "^4.4.3"
-  },
-  "devDependencies": {
     "@types/bcrypt": "^6.0.0",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
@@ -33,11 +20,25 @@
     "@types/morgan": "^1.9.10",
     "@types/node": "^26.2.0",
     "@types/pg": "^8.21.0",
-    "@types/supertest": "^7.2.1",
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
     "drizzle-kit": "^0.31.10",
-    "supertest": "^7.2.2",
+    "drizzle-orm": "^0.45.2",
+    "express": "^5.2.1",
+    "express-async-handler": "^1.2.0",
+    "helmet": "^8.3.0",
+    "jsonwebtoken": "^9.0.3",
+    "morgan": "^1.11.0",
+    "pg": "^8.23.0",
     "tsx": "^4.23.12",
     "typescript": "^7.0.2",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/supertest": "^7.2.1",
+    "supertest": "^7.2.2",
     "vitest": "^4.1.10"
   }
 }
+
