@@ -1,0 +1,435 @@
+{
+  "info": {
+    "name": "ERPFlow API",
+    "description": "Mini ERP + CRM Operations Portal — full API collection. Run 'Login as Admin' first to auto-populate the {{token}} variable.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:4000/api" },
+    { "key": "token", "value": "" },
+    { "key": "customerId", "value": "" },
+    { "key": "productId", "value": "" },
+    { "key": "challanId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login as Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const data = pm.response.json().data;",
+                  "pm.collectionVariables.set('token', data.token);",
+                  "pm.test('Login successful', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@erpflow.com\",\n  \"password\": \"Admin@123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login as Sales",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"sales@erpflow.com\",\n  \"password\": \"Sales@123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login as Warehouse",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"warehouse@erpflow.com\",\n  \"password\": \"Warehouse@123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/auth/me"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Customers",
+      "item": [
+        {
+          "name": "List Customers",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/customers?page=1&limit=10"
+          }
+        },
+        {
+          "name": "Create Customer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) { pm.collectionVariables.set('customerId', pm.response.json().data.id); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/customers",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerName\": \"Postman Test Co\",\n  \"mobileNumber\": \"9998887777\",\n  \"businessName\": \"Postman Test Co Pvt Ltd\",\n  \"customerType\": \"WHOLESALE\",\n  \"address\": \"Vadodara, Gujarat\",\n  \"status\": \"ACTIVE\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Customer By Id",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/customers/{{customerId}}"
+          }
+        },
+        {
+          "name": "Update Customer",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/customers/{{customerId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"notes\": \"Updated via Postman\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Add Follow-up",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/customers/{{customerId}}/follow-ups",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"note\": \"Customer requested quotation for 100 units.\",\n  \"followUpDate\": \"2026-08-20\"\n}"
+            }
+          }
+        },
+        {
+          "name": "List Follow-ups",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/customers/{{customerId}}/follow-ups"
+          }
+        },
+        {
+          "name": "Delete (Soft) Customer",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/customers/{{customerId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Products",
+      "item": [
+        {
+          "name": "List Products",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/products?page=1&limit=10"
+          }
+        },
+        {
+          "name": "List Low Stock Products",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/products?lowStock=true"
+          }
+        },
+        {
+          "name": "Create Product",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) { pm.collectionVariables.set('productId', pm.response.json().data.id); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/products",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productName\": \"Postman Test Product\",\n  \"sku\": \"POSTMAN-TEST-01\",\n  \"category\": \"Test\",\n  \"unitPrice\": 499.99,\n  \"currentStock\": 100,\n  \"minimumStock\": 10,\n  \"warehouseLocation\": \"Warehouse A - Rack 1\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Product By Id",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/products/{{productId}}"
+          }
+        },
+        {
+          "name": "Update Product",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/products/{{productId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"unitPrice\": 549.99\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Product",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/products/{{productId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Inventory",
+      "item": [
+        {
+          "name": "Inventory Overview",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/inventory"
+          }
+        },
+        {
+          "name": "Record Stock IN",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/inventory/movement",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": \"{{productId}}\",\n  \"quantity\": 50,\n  \"movementType\": \"IN\",\n  \"reason\": \"Purchase received\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Record Stock OUT (insufficient — expect 400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/inventory/movement",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"productId\": \"{{productId}}\",\n  \"quantity\": 999999,\n  \"movementType\": \"OUT\",\n  \"reason\": \"Test — should fail\"\n}"
+            }
+          }
+        },
+        {
+          "name": "List Movements",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/inventory/movements?page=1&limit=10"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Sales Challans",
+      "item": [
+        {
+          "name": "List Challans",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/challans?page=1&limit=10"
+          }
+        },
+        {
+          "name": "Create Draft Challan",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) { pm.collectionVariables.set('challanId', pm.response.json().data.id); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/challans",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerId\": \"{{customerId}}\",\n  \"items\": [\n    { \"productId\": \"{{productId}}\", \"quantity\": 5 }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Challan By Id",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/challans/{{challanId}}"
+          }
+        },
+        {
+          "name": "Update Draft Challan",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/challans/{{challanId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    { \"productId\": \"{{productId}}\", \"quantity\": 8 }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Confirm Challan",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/challans/{{challanId}}/confirm"
+          }
+        },
+        {
+          "name": "Confirm Again (expect 400 — already confirmed)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/challans/{{challanId}}/confirm"
+          }
+        },
+        {
+          "name": "Cancel Challan",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/challans/{{challanId}}/cancel"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "item": [
+        {
+          "name": "Get Dashboard Stats",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/dashboard"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users (Admin)",
+      "item": [
+        {
+          "name": "List Users",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/users"
+          }
+        },
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": "{{baseUrl}}/users",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Postman New User\",\n  \"email\": \"postman.user@erpflow.com\",\n  \"password\": \"Password123\",\n  \"role\": \"SALES\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/health"
+          }
+        }
+      ]
+    }
+  ]
+}
