@@ -15,13 +15,41 @@ import userRoutes from "./routes/userRoutes";
 
 const app = express();
 
-app.use(helmet());
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  })
+);
+
+const allowedOrigins = (env.FRONTEND_URL || "")
+  .split(",")
+  .map((url) => url.trim().replace(/\/+$/, ""))
+  .filter(Boolean);
+
 app.use(
   cors({
-    origin: env.FRONTEND_URL,
+    origin: (origin, callback) => {
+      // Allow requests with no origin (e.g., mobile apps, curl, server-to-server)
+      if (!origin) return callback(null, true);
+
+      const normalizedOrigin = origin.replace(/\/+$/, "");
+
+      if (
+        allowedOrigins.length === 0 ||
+        allowedOrigins.includes("*") ||
+        allowedOrigins.includes(normalizedOrigin) ||
+        (env.FRONTEND_URL.includes("vercel.app") && normalizedOrigin.endsWith(".vercel.app"))
+      ) {
+        return callback(null, true);
+      }
+
+      console.warn(`CORS blocked request from origin: ${origin}`);
+      return callback(null, false);
+    },
     credentials: true,
   })
 );
+
 app.use(express.json());
 app.use(morgan(env.NODE_ENV === "production" ? "combined" : "dev"));
 
